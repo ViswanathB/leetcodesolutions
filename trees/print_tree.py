@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Any
 from queue import Queue
 
 
@@ -10,8 +10,14 @@ class TreeNode:
 
 
 class Tree:
-    def __init__(self, root: Optional[TreeNode]):
+    def __init__(self, root: Optional[TreeNode] = None):
         self.root = root
+
+    def _height(self, root: Optional[TreeNode]) -> int:
+        if root == None:
+            return 0
+
+        return max(self._height(root.left_node), self._height(root.right_node)) + 1
 
     def printLevelWise(self):
         queue_bfs = Queue()
@@ -40,12 +46,50 @@ class Tree:
             len_q = local_len_q
             print()
 
+    def getHeight(self):
+        return self._height(self.root)
 
-class SerializeDeserialize:
-    def __init__(self):
-        pass
+    def prettyPrint(self):
+        node_q = Queue()
 
-    def deserialize(self, tree_string: str) -> Optional[Tree]:
+        height = self.getHeight()
+        level = 1
+        count = 1
+        node_q.put(self.root)
+        space = " "
+        while level <= height:
+            count = node_q._qsize()
+
+            initial_space = pow(2, height - level) - 1
+            middle_space = pow(2, height - level + 1) - 1
+            print()
+            print(f"{space*initial_space}", end="")
+            while count:
+                count -= 1
+                next_ele = node_q.get()
+                if next_ele != None:
+                    if next_ele.val == 999999:
+                        print(f"{space}{space*middle_space}", end="")
+
+                        if level < height:
+                            node_q.put(TreeNode(999999))
+                            node_q.put(TreeNode(999999))
+                        continue
+                    else:
+                        print(f"{next_ele.val}{space*middle_space}", end="")
+                        if next_ele.left_node != None:
+                            node_q.put(next_ele.left_node)
+                        else:
+                            node_q.put(TreeNode(999999))
+                        if next_ele.right_node != None:
+                            node_q.put(next_ele.right_node)
+                        else:
+                            node_q.put(TreeNode(999999))
+
+            level += 1
+        print()
+
+    def construct(self, tree_string: str) -> Optional[Any]:
         if tree_string == "":
             return None
 
@@ -79,22 +123,15 @@ class SerializeDeserialize:
 
             str_index += 2
 
+        self.root = tree_ref
         return tree_ref
 
 
 if __name__ == "__main__":
-    # test case 1
     print("Test case 1")
-    serialized_tree = "a2c2b1e3f3i3"
+    serialized_tree_1 = "a2c2b1e0f1i1g3h3j2k3l3"
 
-    test_tree_1 = SerializeDeserialize().deserialize(serialized_tree)
+    test_tree_1 = Tree().construct(serialized_tree_1)
     assert test_tree_1
     test_tree_1.printLevelWise()
-
-    # test case 2
-    print("Test case 2")
-    serialized_tree = "a2c2b1e0f1i1g3h3j2k3l3"
-
-    test_tree_1 = SerializeDeserialize().deserialize(serialized_tree)
-    assert test_tree_1
-    test_tree_1.printLevelWise()
+    test_tree_1.prettyPrint()
