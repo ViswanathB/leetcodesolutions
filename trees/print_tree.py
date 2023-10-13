@@ -57,20 +57,22 @@ class Tree:
         count = 1
         node_q.put(self.root)
         space = " "
+        forward_slashes = []
+        backward_slashes = []
         while level <= height:
             count = node_q._qsize()
 
             initial_space = pow(2, height - level) - 1
             middle_space = pow(2, height - level + 1) - 1
-            print()
             print(f"{space*initial_space}", end="")
+            cur_pos = initial_space
             while count:
                 count -= 1
                 next_ele = node_q.get()
                 if next_ele != None:
                     if next_ele.val == 999999:
                         print(f"{space}{space*middle_space}", end="")
-
+                        cur_pos += 1 + middle_space
                         if level < height:
                             node_q.put(TreeNode(999999))
                             node_q.put(TreeNode(999999))
@@ -79,13 +81,41 @@ class Tree:
                         print(f"{next_ele.val}{space*middle_space}", end="")
                         if next_ele.left_node != None:
                             node_q.put(next_ele.left_node)
+                            forward_slashes.append(cur_pos - 1)
                         else:
                             node_q.put(TreeNode(999999))
                         if next_ele.right_node != None:
                             node_q.put(next_ele.right_node)
+                            backward_slashes.append(cur_pos + 1)
                         else:
                             node_q.put(TreeNode(999999))
 
+                        cur_pos += 1 + middle_space
+
+            if level + 1 > height:
+                break
+
+            print()
+            next_level = level + 1
+            next_level_initial_space = pow(2, height - next_level) - 1
+            for i in range(initial_space, next_level_initial_space + 1, -1):
+                cur_pos = 0
+                last_pos = backward_slashes[-1]
+                for j in range(cur_pos, last_pos + 1):
+                    if j == forward_slashes[0]:
+                        print("/", end="")
+                        forward_slashes.pop(0)
+                        forward_slashes.append(j - 1)
+                    elif j == backward_slashes[0]:
+                        print("\\", end="")
+                        backward_slashes.pop(0)
+                        backward_slashes.append(j + 1)
+                    else:
+                        print(" ", end="")
+                print()
+
+            forward_slashes.clear()
+            backward_slashes.clear()
             level += 1
         print()
 
@@ -127,11 +157,80 @@ class Tree:
         return tree_ref
 
 
+"""
+Test case 1
+               a                               
+              / \
+             /   \
+            /     \
+           /       \
+          /         \
+         /           \
+        /             \
+       c               b               
+      / \               \
+     /   \               \
+    /     \               \
+   e       f               i       
+  /         \               \
+ g           h               j   
+                            k l 
+Test case 2
+               a                               
+              / \
+             /   \
+            /     \
+           /       \
+          /         \
+         /           \
+        /             \
+       c               b               
+      / \               \
+     /   \               \
+    /     \               \
+   e       f               i       
+  / \                       \
+ g   k                       n   
+l m                           o 
+Test case 3
+               a                               
+              / \
+             /   \
+            /     \
+           /       \
+          /         \
+         /           \
+        /             \
+       c               b               
+      / \               \
+     /   \               \
+    /     \               \
+   e       f               i       
+  / \       \             / \
+ g   k       1           2   n   
+l m           3         4     o
+"""
 if __name__ == "__main__":
     print("Test case 1")
     serialized_tree_1 = "a2c2b1e0f1i1g3h3j2k3l3"
 
     test_tree_1 = Tree().construct(serialized_tree_1)
     assert test_tree_1
-    test_tree_1.printLevelWise()
+    # test_tree_1.printLevelWise()
     test_tree_1.prettyPrint()
+
+    print("Test case 2")
+    serialized_tree_2 = "a2c2b1e2f3i1g2k3n1l3m3o3"
+
+    test_tree_2 = Tree().construct(serialized_tree_2)
+    assert test_tree_2
+    # test_tree_1.printLevelWise()
+    test_tree_2.prettyPrint()
+
+    print("Test case 3")
+    serialized_tree_3 = "a2c2b1e2f1i2g2k31120n1l3m33343o3"
+
+    test_tree_3 = Tree().construct(serialized_tree_3)
+    assert test_tree_3
+    # test_tree_1.printLevelWise()
+    test_tree_3.prettyPrint()
