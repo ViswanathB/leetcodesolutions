@@ -1,9 +1,9 @@
-from typing import Optional, Any
+from typing import Optional, List, Any
 from queue import Queue
 
 
 class TreeNode:
-    def __init__(self, val: int = None) -> None:
+    def __init__(self, val: str = None) -> None:
         self.val = val
         self.left_node = None
         self.right_node = None
@@ -18,6 +18,27 @@ class Tree:
             return 0
 
         return max(self._height(root.left_node), self._height(root.right_node)) + 1
+
+    def _printSlashes(
+        self, height: int, level: int, initial_space: int, forward_slashes: List[int], backward_slashes: List[int]
+    ):
+        next_level = level + 1
+        next_level_initial_space = pow(2, height - next_level) - 1
+        for i in range(initial_space, next_level_initial_space + 1, -1):
+            cur_pos = 0
+            last_pos = backward_slashes[-1]
+            for j in range(cur_pos, last_pos + 1):
+                if j == forward_slashes[0]:
+                    print("/", end="")
+                    forward_slashes.pop(0)
+                    forward_slashes.append(j - 1)
+                elif j == backward_slashes[0]:
+                    print("\\", end="")
+                    backward_slashes.pop(0)
+                    backward_slashes.append(j + 1)
+                else:
+                    print(" ", end="")
+            print()
 
     def printLevelWise(self):
         queue_bfs = Queue()
@@ -96,24 +117,7 @@ class Tree:
                 break
 
             print()
-            next_level = level + 1
-            next_level_initial_space = pow(2, height - next_level) - 1
-            for i in range(initial_space, next_level_initial_space + 1, -1):
-                cur_pos = 0
-                last_pos = backward_slashes[-1]
-                for j in range(cur_pos, last_pos + 1):
-                    if j == forward_slashes[0]:
-                        print("/", end="")
-                        forward_slashes.pop(0)
-                        forward_slashes.append(j - 1)
-                    elif j == backward_slashes[0]:
-                        print("\\", end="")
-                        backward_slashes.pop(0)
-                        backward_slashes.append(j + 1)
-                    else:
-                        print(" ", end="")
-                print()
-
+            self._printSlashes(height, level, initial_space, forward_slashes, backward_slashes)
             forward_slashes.clear()
             backward_slashes.clear()
             level += 1
@@ -210,6 +214,7 @@ Test case 3
  g   k       1           2   n   
 l m           3         4     o
 """
+
 if __name__ == "__main__":
     print("Test case 1")
     serialized_tree_1 = "a2c2b1e0f1i1g3h3j2k3l3"
